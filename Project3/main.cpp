@@ -120,20 +120,25 @@ char Stack::Pop()
 }
 bool Stack::check_expression()
 {
-	Stack tmp;
+	string tmp1 ,tmp2;
 	int i = 0;
 	int open = 0, closed = 0;
+	char left = '\0', right = '\0';
+
 	while (st[i] != ';')
 	{
 		if (st[i] == '(' || st[i] == '{' || st[i] == '[')
 		{
-			tmp.Push(st[i++]);
+			tmp1.push_back(st[i]);
+			left = st[i++];
 			++open;
 		}
 		else if (st[i] == ')' || st[i] == '}' || st[i] == ']') 
 		{
+			if (right == '\0')
+				right = st[i];
+			tmp2.push_back(st[i++]);
 			++closed;
-			++i;
 		}
 		else
 			++i;
@@ -141,18 +146,21 @@ bool Stack::check_expression()
 	if (open != closed)
 		return false;
 	i = 0;
-	char left = tmp.getTop();
-	while (st[i] != ';') /*([{}])*/
+	while (tmp1[i] != '\0' || tmp2[i] != '\0')
 	{
-		if (left == '(' && st[i] == ')' || left == '[' && st[i] == ']' || left == '{' && st[i] == '}') {
-			tmp.Pop();
-			left = tmp.getTop();
+		if (left == '(' && right == ')' || left == '[' && right == ']' || left == '{' && right == '}') {
+			tmp1.pop_back();
+			tmp2.erase(0,1);
+			if (!(tmp1.empty()))
+				left = tmp1.back();
+			if(!(tmp2.empty()))
+				right = tmp2.front();
 			i = 0;
 		}
 		else
 			i++;
 	}
-	if(tmp.IsEmpty())
+	if(tmp1.empty())
 		return true;
 	return false;
 }
